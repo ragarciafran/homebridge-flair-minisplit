@@ -8,7 +8,7 @@ import {
 
 import {FlairPlatform} from './platform';
 import Client from './client';
-import {FlairMode, Room, HVAC, Structure, StructureHeatCoolMode} from './client/models';
+import {FlairMode, Room, HVAC, Structure} from './client/models';
 import {HVACMode, HVACPowerMode, TemperatureScale} from './client/models/hvac';
 import {getRandomIntInclusive} from './utils';
 
@@ -54,7 +54,7 @@ export class FlairHVACPlatformAccessory {
           this.platform.Characteristic.TemperatureDisplayUnits,
           this.hvac.temperatureScale === TemperatureScale.F ?
             this.platform.Characteristic.TemperatureDisplayUnits.FAHRENHEIT :
-            this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS
+            this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS,
         )
         .setCharacteristic(this.platform.Characteristic.CurrentTemperature, this.room.currentTemperatureC!)
         .setCharacteristic(this.platform.Characteristic.TargetTemperature, this.hvac.getSetPointC())
@@ -98,7 +98,7 @@ export class FlairHVACPlatformAccessory {
           this.client.setHVACPowerMode(this.hvac, HVACPowerMode.OFF).then(() => {
             callback(null, value);
             this.getNewHVACReadings();
-          })
+          });
         });
       } else if(value === this.platform.Characteristic.TargetHeatingCoolingState.COOL) {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
@@ -106,8 +106,8 @@ export class FlairHVACPlatformAccessory {
             this.client.setHVACMode(hvac, HVACMode.COOL).then(() => {
               callback(null, value);
               this.getNewHVACReadings();
-            })
-          })
+            });
+          });
         });
       } else if(value === this.platform.Characteristic.TargetHeatingCoolingState.HEAT) {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
@@ -115,8 +115,8 @@ export class FlairHVACPlatformAccessory {
             this.client.setHVACMode(hvac, HVACMode.HEAT).then(() => {
               callback(null, value);
               this.getNewHVACReadings();
-            })
-          })
+            });
+          });
         });
       } else if(value === this.platform.Characteristic.TargetHeatingCoolingState.AUTO) {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
@@ -124,8 +124,8 @@ export class FlairHVACPlatformAccessory {
             this.client.setHVACMode(hvac, HVACMode.AUTO).then(() => {
               callback(null, value);
               this.getNewHVACReadings();
-            })
-          })
+            });
+          });
         });
       }
     }
@@ -182,7 +182,7 @@ export class FlairHVACPlatformAccessory {
       // push the new value to HomeKit
       this.thermostatService
         .updateCharacteristic(
-          this.platform.Characteristic.TargetTemperature, this.hvac.getSetPointC()
+          this.platform.Characteristic.TargetTemperature, this.hvac.getSetPointC(),
         )
         .updateCharacteristic(
           this.platform.Characteristic.TargetHeatingCoolingState,

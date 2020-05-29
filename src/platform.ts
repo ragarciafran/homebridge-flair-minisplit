@@ -4,10 +4,9 @@ import type {API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConf
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 import {FlairHVACPlatformAccessory} from './hvacPlatformAccessory';
 import Client from './client';
-import {Puck, Vent, Room, HVAC, Structure, FlairMode, StructureHeatCoolMode} from './client/models';
+import {Room, HVAC, Structure, FlairMode} from './client/models';
 import {Model} from './client/models/model';
 import {plainToClass} from 'class-transformer';
-import {getRandomIntInclusive} from './utils';
 
 /**
  * HomebridgePlatform
@@ -151,9 +150,9 @@ export class FlairPlatform implements DynamicPlatformPlugin {
     async discoverDevices() {
       let currentUUIDs: string[] = [];
 
-      const devices = (await this.client.getHVACs((await this.getStructure()))) as [HVAC]
+      const devices = (await this.client.getHVACs((await this.getStructure()))) as [HVAC];
       for (const device of devices) {
-        let room = new Room();
+        const room = new Room();
         room.id = device.roomId;
         device.setRoom(await this.client.getRoom(room));
       }
