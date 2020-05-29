@@ -95,35 +95,35 @@ export class FlairHVACPlatformAccessory {
     setTargetHeatingCoolingState(value: CharacteristicValue, callback: CharacteristicSetCallback) {
       if (value === this.platform.Characteristic.TargetHeatingCoolingState.OFF) {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
-          this.client.setHVACPowerMode(this.hvac, HVACPowerMode.OFF).then(() => {
+          this.client.setHVACPowerMode(this.hvac, HVACPowerMode.OFF).then((hvac: HVAC) => {
             callback(null, value);
-            this.getNewHVACReadings();
+            this.updateHVACReadingsFromHVAC(hvac);
           });
         });
       } else if(value === this.platform.Characteristic.TargetHeatingCoolingState.COOL) {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
           this.client.setHVACPowerMode(this.hvac, HVACPowerMode.ON).then((hvac: HVAC) => {
-            this.client.setHVACMode(hvac, HVACMode.COOL).then(() => {
+            this.client.setHVACMode(hvac, HVACMode.COOL).then((hvac: HVAC) => {
               callback(null, value);
-              this.getNewHVACReadings();
+              this.updateHVACReadingsFromHVAC(hvac);
             });
           });
         });
       } else if(value === this.platform.Characteristic.TargetHeatingCoolingState.HEAT) {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
           this.client.setHVACPowerMode(this.hvac, HVACPowerMode.ON).then((hvac: HVAC) => {
-            this.client.setHVACMode(hvac, HVACMode.HEAT).then(() => {
+            this.client.setHVACMode(hvac, HVACMode.HEAT).then((hvac: HVAC) => {
               callback(null, value);
-              this.getNewHVACReadings();
+              this.updateHVACReadingsFromHVAC(hvac);
             });
           });
         });
       } else if(value === this.platform.Characteristic.TargetHeatingCoolingState.AUTO) {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
           this.client.setHVACPowerMode(this.hvac, HVACPowerMode.ON).then((hvac: HVAC) => {
-            this.client.setHVACMode(hvac, HVACMode.AUTO).then(() => {
+            this.client.setHVACMode(hvac, HVACMode.AUTO).then((hvac: HVAC) => {
               callback(null, value);
-              this.getNewHVACReadings();
+              this.updateHVACReadingsFromHVAC(hvac);
             });
           });
         });
