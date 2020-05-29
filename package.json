@@ -1,15 +1,15 @@
 {
-  "displayName": "Homebridge Flair",
-  "name": "homebridge-flair",
-  "version": "1.0.5",
-  "description": "Brings the flair smart vents into homekit",
+  "displayName": "Homebridge Flair Minisplit",
+  "name": "homebridge-flair-minisplit",
+  "version": "0.9.0",
+  "description": "Enables you to control mini split HVAC units through Flair via Homekit.",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git://github.com/bassrock/homebridge-flair.git"
+    "url": "git://github.com/mikeknoop/homebridge-flair-minisplit.git"
   },
   "bugs": {
-    "url": "https://github.com/bassrock/homebridge-flair/issues"
+    "url": "https://github.com/mikeknoop/homebridge-flair-minisplit/issues"
   },
   "engines": {
     "node": ">=10.17.0",
@@ -30,8 +30,11 @@
   "dependencies": {
     "@types/node": "^13.13.2",
     "class-transformer": "^0.2.3",
-    "flair-api-ts": "0.0.16",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "@types/es6-promise": "^3.3.0",
+    "axios": "^0.19.2",
+    "moment": "^2.25.3",
+    "query-string": "^6.12.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.29.0",

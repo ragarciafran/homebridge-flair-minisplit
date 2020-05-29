@@ -2,12 +2,10 @@ import {APIEvent} from 'homebridge';
 import type {API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig} from 'homebridge';
 
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
-import {FlairPuckPlatformAccessory} from './puckPlatformAccessory';
-import {FlairVentPlatformAccessory} from './ventPlatformAccessory';
-import {FlairRoomPlatformAccessory} from './roomPlatformAccessory';
-import Client from 'flair-api-ts/lib/client';
-import {Puck, Vent, Room, Structure, FlairMode, StructureHeatCoolMode} from 'flair-api-ts/lib/client/models';
-import {Model} from 'flair-api-ts/lib/client/models/model';
+import {FlairHVACPlatformAccessory} from './hvacPlatformAccessory';
+import Client from './client';
+import {Puck, Vent, Room, HVAC, Structure, FlairMode, StructureHeatCoolMode} from './client/models';
+import {Model} from './client/models/model';
 import {plainToClass} from 'class-transformer';
 import {getRandomIntInclusive} from './utils';
 
@@ -27,7 +25,7 @@ export class FlairPlatform implements DynamicPlatformPlugin {
 
     private structure?: Structure;
 
-    private rooms: [FlairRoomPlatformAccessory?] = []
+    private hvacs: [FlairHVACPlatformAccessory?] = []
 
 
     constructor(
@@ -38,7 +36,7 @@ export class FlairPlatform implements DynamicPlatformPlugin {
       this.log.debug('Finished initializing platform:', this.config.name);
 
       if (!this.validConfig()) {
-        throw('The Flair config is no valid.');
+        throw('The Flair config ixs no valid.');
       }
 
       this.client = new Client(this.config.clientId, this.config.clientSecret, this.config.username, this.config.password);
@@ -52,9 +50,10 @@ export class FlairPlatform implements DynamicPlatformPlugin {
         // run the method to discover / register your devices as accessories
         await this.discoverDevices();
 
-        setInterval(async () => {
-          await this.getNewStructureReadings();
-        }, (this.config.pollInterval+ getRandomIntInclusive(1,20)) * 1000);
+        // setInterval(async () => {
+        //   await this.getNewStructureReadings();
+        // }, (this.config.pollInterval+ getRandomIntInclusive(1,20)) * 1000);
+
       });
     }
 
@@ -83,29 +82,27 @@ export class FlairPlatform implements DynamicPlatformPlugin {
       return true;
     }
 
-    private async getNewStructureReadings() {
-      try {
-        const structure = await this.client.getStructure(await this.getStructure());
-        this.updateStructureFromStructureReading(structure);
-      } catch (e) {
-        this.log.error(e);
-      }
-    }
+    // private async getNewStructureReadings() {
+    //   try {
+    //     const structure = await this.client.getStructure(await this.getStructure());
+    //     this.updateStructureFromStructureReading(structure);
+    //   } catch (e) {
+    //     this.log.error(e);
+    //   }
+    // }
 
     private updateStructureFromStructureReading(structure: Structure) {
       this.structure = structure;
-      for (const room of this.rooms) {
-        if (room) {
-          room.updateFromStructure(this.structure);
+      for (const hvac of this.hvacs) {
+        if (hvac) {
+          hvac.updateFromStructure(this.structure);
         }
       }
       return this.structure;
     }
 
-    public async setStructureMode(mode: FlairMode, heatingCoolingMode: StructureHeatCoolMode): Promise<Structure> {
-      let structure = await this.client.setStructureMode(await this.getStructure(), mode);
-      structure = await this.client.setStructureHeatingCoolMode(structure, heatingCoolingMode);
-
+    public async setStructureMode(mode: FlairMode): Promise<Structure> {
+      const structure = await this.client.setStructureMode(await this.getStructure(), mode);
       return this.updateStructureFromStructureReading(structure);
     }
 
@@ -133,19 +130,12 @@ export class FlairPlatform implements DynamicPlatformPlugin {
     configureAccessory(accessory: PlatformAccessory) {
       this.log.info('Restoring accessory from cache:', accessory.displayName);
 
-      if (accessory.context.type === Puck.type) {
-        this.log.info('Restoring puck from cache:', accessory.displayName);
-        accessory.context.device = plainToClass(Puck, accessory.context.device);
-        new FlairPuckPlatformAccessory(this, accessory, this.client);
-      } else if (accessory.context.type === Vent.type) {
-        this.log.info('Restoring vent from cache:', accessory.displayName);
-        accessory.context.device = plainToClass(Vent, accessory.context.device);
-        new FlairVentPlatformAccessory(this, accessory, this.client);
-      } else if (accessory.context.type === Room.type) {
-        this.log.info('Restoring room from cache:', accessory.displayName);
-        accessory.context.device = plainToClass(Room, accessory.context.device);
+      if (accessory.context.type === HVAC.type) {
+        this.log.info('Restoring hvac from cache:', accessory.displayName);
+        accessory.context.device = plainToClass(HVAC, accessory.context.device);
+        accessory.context.device.room = plainToClass(Room, accessory.context.device.room);
         this.getStructure().then((structure: Structure) => {
-          this.rooms.push(new FlairRoomPlatformAccessory(this, accessory, this.client, structure));
+          this.hvacs.push(new FlairHVACPlatformAccessory(this, accessory, this.client, accessory.context.device.room, structure));
         });
       }
 
@@ -161,16 +151,16 @@ export class FlairPlatform implements DynamicPlatformPlugin {
     async discoverDevices() {
       let currentUUIDs: string[] = [];
 
-      const promisesToResolve = [
-        this.addDevices(await this.client.getVents()),
-        this.addDevices((await this.client.getRooms()).filter((value: Room) => {
-          return value.pucksInactive === 'Active';
-        }) as [Room]),
-      ];
-
-      if (!this.config.hidePuckSensors) {
-        promisesToResolve.push(this.addDevices(await this.client.getPucks()));
+      const devices = (await this.client.getHVACs((await this.getStructure()))) as [HVAC]
+      for (const device of devices) {
+        let room = new Room();
+        room.id = device.roomId;
+        device.setRoom(await this.client.getRoom(room));
       }
+
+      const promisesToResolve = [
+        this.addDevices(devices),
+      ];
 
       currentUUIDs = currentUUIDs.concat(...await Promise.all(promisesToResolve));
 
@@ -209,17 +199,10 @@ export class FlairPlatform implements DynamicPlatformPlugin {
 
 
           // create the accessory handler
-          // this is imported from `puckPlatformAccessory.ts`
-          if (device instanceof Puck) {
-            accessory.context.type = Puck.type;
-            new FlairPuckPlatformAccessory(this, accessory, this.client);
-          } else if (device instanceof Vent) {
-            accessory.context.type = Vent.type;
-            new FlairVentPlatformAccessory(this, accessory, this.client);
-          } else if (device instanceof Room) {
-            accessory.context.type = Room.type;
+          if (device instanceof HVAC) {
+            accessory.context.type = HVAC.type;
             this.getStructure().then((structure: Structure) => {
-              this.rooms.push(new FlairRoomPlatformAccessory(this, accessory, this.client, structure));
+              this.hvacs.push(new FlairHVACPlatformAccessory(this, accessory, this.client, accessory.context.device.room, structure));
             });
           } else {
             continue;

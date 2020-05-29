@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "Flair",
+  "pluginAlias": "Flair Minisplit",
   "pluginType": "platform",
   "singular": true,
   "schema": {
@@ -39,40 +39,6 @@
         "description": "How often the plugin should poll the Flair API for updates.",
         "required": true,
         "default": 60
-      },
-      "hidePuckSensors": {
-        "title": "Hide the puck sensors",
-        "description": "Hides the Puck Sensors and only relies on the Puck Thermostats (Rooms)",
-        "type": "boolean",
-        "required": true,
-        "default": false
-      },
-      "ventAccessoryType": {
-        "title": "Vent Accessory Type",
-        "description": "Controls how the vents should show up in HomeKit",
-        "type": "string",
-        "required": true,
-        "default": "windowCovering",
-        "oneOf": [
-          {
-            "title": "Window Covering",
-            "enum": [
-              "windowCovering"
-            ]
-          },
-          {
-            "title": "Fan",
-            "enum": [
-              "fan"
-            ]
-          },
-          {
-            "title": "Air Purifier",
-            "enum": [
-              "airPurifier"
-            ]
-          }
-        ]
       }
     }
   }
