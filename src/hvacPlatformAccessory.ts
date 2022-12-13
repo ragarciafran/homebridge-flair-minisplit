@@ -96,7 +96,7 @@ export class FlairHVACPlatformAccessory {
       if (value === this.platform.Characteristic.TargetHeatingCoolingState.OFF) {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
           this.client.setHVACPowerMode(this.hvac, HVACPowerMode.OFF).then((hvac: HVAC) => {
-            callback(null, value);
+            callback(null);
             this.updateHVACReadingsFromHVAC(hvac);
           });
         });
@@ -104,7 +104,7 @@ export class FlairHVACPlatformAccessory {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
           this.client.setHVACPowerMode(this.hvac, HVACPowerMode.ON).then((hvac: HVAC) => {
             this.client.setHVACMode(hvac, HVACMode.COOL).then((hvac: HVAC) => {
-              callback(null, value);
+              callback(null);
               this.updateHVACReadingsFromHVAC(hvac);
             });
           });
@@ -113,7 +113,7 @@ export class FlairHVACPlatformAccessory {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
           this.client.setHVACPowerMode(this.hvac, HVACPowerMode.ON).then((hvac: HVAC) => {
             this.client.setHVACMode(hvac, HVACMode.HEAT).then((hvac: HVAC) => {
-              callback(null, value);
+              callback(null);
               this.updateHVACReadingsFromHVAC(hvac);
             });
           });
@@ -122,7 +122,7 @@ export class FlairHVACPlatformAccessory {
         this.platform.setStructureMode(FlairMode.MANUAL).then(() => {
           this.client.setHVACPowerMode(this.hvac, HVACPowerMode.ON).then((hvac: HVAC) => {
             this.client.setHVACMode(hvac, HVACMode.AUTO).then((hvac: HVAC) => {
-              callback(null, value);
+              callback(null);
               this.updateHVACReadingsFromHVAC(hvac);
             });
           });
@@ -135,7 +135,7 @@ export class FlairHVACPlatformAccessory {
         this.updateHVACReadingsFromHVAC(hvac);
         this.platform.log.debug('Set Characteristic Temperature -> ', hvac.convertFromCToSetPointUnits(value as number));
         // you must call the callback function
-        callback(null, hvac.convertFromCToSetPointUnits(value as number));
+        callback(null);
       });
 
     }
