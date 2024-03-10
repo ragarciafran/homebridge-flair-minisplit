@@ -12,7 +12,7 @@ Credit to [homebridge-flair](https://github.com/bassrock/homebridge-flair) for t
 
 <!-- 2. Clone (or pull) this repository from github into the same path Homebridge lives (usually `/usr/local/lib/node_modules`). Note: the code currently on GitHub is in beta, and is newer than the latest published version of this package on `npm` -->
 1. Install homebridge using: `npm install -g homebridge`
-2. Install this plug-in using: `npm install -g @rsflair/homebridge-flair-minisplit`
+2. Install this plug-in using: `npm install -g @rasorina/homebridge-flair-minisplit`
 3. Update your configuration file. See example `config.json` snippet below.
 
 # Configuration

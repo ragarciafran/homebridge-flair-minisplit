@@ -1,6 +1,6 @@
 {
   "displayName": "Homebridge Flair Minisplit",
-  "name": "@rsflair/homebridge-flair-minisplit",
+  "name": "@rasorina/homebridge-flair-minisplit",
   "version": "0.0.0-development",
   "description": "Enables you to control mini split HVAC units through Flair via Homekit.",
   "license": "ISC",
