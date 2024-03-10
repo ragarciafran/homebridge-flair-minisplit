@@ -221,8 +221,12 @@ class Client {
     }
 
     public async getPrimaryStructure(): Promise<Structure> {
-        await this.updateClient()
-        return (await this.getStructures()).find((structure: Structure) => {
+        await this.updateClient();
+        const structures = await this.getStructures();
+        if (structures.length === 1) {
+        return structures[0];
+        }
+        return structures.find((structure: Structure) => {
             return structure.isPrimaryHome();
         })!;
     }
